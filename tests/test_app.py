@@ -336,3 +336,12 @@ def test_validate_runtime_settings_allows_demo_mode_without_mail():
     )
 
     app_module.validate_runtime_settings(app)
+
+
+def test_normalize_database_url_uses_psycopg_driver():
+    assert main2.app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite:///")
+    assert app_module.get_config
+    normalized = importlib.import_module("app.config").normalize_database_url("postgresql://user:pass@localhost:5432/carecompass")
+    assert normalized == "postgresql+psycopg://user:pass@localhost:5432/carecompass"
+    normalized_legacy = importlib.import_module("app.config").normalize_database_url("postgres://user:pass@localhost:5432/carecompass")
+    assert normalized_legacy == "postgresql+psycopg://user:pass@localhost:5432/carecompass"

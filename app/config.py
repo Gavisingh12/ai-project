@@ -39,8 +39,12 @@ def env_bool(name, default=False):
 def normalize_database_url(database_url):
     if not database_url:
         return f"sqlite:///{INSTANCE_DIR / 'app.db'}"
+    if database_url.startswith("postgresql+psycopg://"):
+        return database_url
     if database_url.startswith("postgres://"):
-        return database_url.replace("postgres://", "postgresql://", 1)
+        return database_url.replace("postgres://", "postgresql+psycopg://", 1)
+    if database_url.startswith("postgresql://"):
+        return database_url.replace("postgresql://", "postgresql+psycopg://", 1)
     return database_url
 
 
