@@ -295,3 +295,20 @@ def test_validate_runtime_settings_blocks_unsafe_production_config():
 
     with pytest.raises(RuntimeError, match="Production configuration error"):
         app_module.validate_runtime_settings(app)
+
+
+def test_validate_runtime_settings_blocks_placeholder_mail_values():
+    app = Flask(__name__)
+    app.config.update(
+        SQLALCHEMY_DATABASE_URI="postgresql://user:pass@localhost:5432/carecompass",
+        SESSION_COOKIE_SECURE=True,
+        REMEMBER_COOKIE_SECURE=True,
+        PREFERRED_URL_SCHEME="https",
+        ENABLE_DEV_ROUTES=False,
+        MAIL_USERNAME="your.email@gmail.com",
+        MAIL_PASSWORD="your-app-password",
+        MAIL_DEFAULT_SENDER="your.email@gmail.com",
+    )
+
+    with pytest.raises(RuntimeError, match="placeholder values"):
+        app_module.validate_runtime_settings(app)

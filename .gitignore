@@ -8,6 +8,7 @@ __pycache__/
 htmlcov/
 instance/*.db
 *.db
+tests/*.db
 *.pyc
 *.pyo
 *.pyd

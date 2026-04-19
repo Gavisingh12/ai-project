@@ -8,7 +8,7 @@ from flask_login import current_user
 from sqlalchemy import inspect, text
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from app.config import get_config
+from app.config import get_config, has_real_mail_value
 from app.extensions import db, login_manager, mail
 from app.models import User
 from app.services.ai import configure_ai
@@ -96,9 +96,9 @@ def validate_runtime_settings(app):
 
     issues = []
     database_uri = app.config.get("SQLALCHEMY_DATABASE_URI", "")
-    missing_mail = [
+    invalid_mail = [
         key for key in ("MAIL_USERNAME", "MAIL_PASSWORD", "MAIL_DEFAULT_SENDER")
-        if not app.config.get(key)
+        if not has_real_mail_value(app.config.get(key))
     ]
 
     if not database_uri or database_uri.startswith("sqlite"):
@@ -109,10 +109,10 @@ def validate_runtime_settings(app):
         issues.append("REMEMBER_COOKIE_SECURE must be true in production.")
     if app.config.get("ENABLE_DEV_ROUTES"):
         issues.append("ENABLE_DEV_ROUTES must be false in production.")
-    if missing_mail:
+    if invalid_mail:
         issues.append(
-            "Mail settings are required for email verification in production: "
-            + ", ".join(missing_mail)
+            "Mail settings are required for email verification in production and cannot use placeholder values: "
+            + ", ".join(invalid_mail)
         )
 
     if issues:

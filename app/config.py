@@ -20,6 +20,13 @@ INVALID_SECRET_KEY_VALUES = {
     "dev-only-secret-key",
     "replace-with-a-secure-secret",
 }
+INVALID_MAIL_VALUES = {
+    "",
+    "your.email@gmail.com",
+    "your-app-password",
+    "replace-me",
+    "changeme",
+}
 
 
 def env_bool(name, default=False):
@@ -49,6 +56,13 @@ def has_real_secret_key(secret_key):
     if not normalized:
         return False
     return normalized.lower() not in INVALID_SECRET_KEY_VALUES
+
+
+def has_real_mail_value(value):
+    normalized = (value or "").strip()
+    if not normalized:
+        return False
+    return normalized.lower() not in INVALID_MAIL_VALUES
 
 
 class BaseConfig:

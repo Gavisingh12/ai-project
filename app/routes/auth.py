@@ -4,6 +4,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from flask_mail import Message
 from sqlalchemy import func, or_
 
+from app.config import has_real_mail_value
 from app.extensions import db, mail
 from app.models import User
 
@@ -72,7 +73,10 @@ def build_verification_url(user_email):
 
 def send_password_reset_email(user_email):
     reset_url = build_reset_url(user_email)
-    if not current_app.config.get("MAIL_USERNAME") or not current_app.config.get("MAIL_DEFAULT_SENDER"):
+    if not all(
+        has_real_mail_value(current_app.config.get(key))
+        for key in ("MAIL_USERNAME", "MAIL_PASSWORD", "MAIL_DEFAULT_SENDER")
+    ):
         current_app.logger.warning("Mail is not configured. Password reset email was not sent.")
         return False, reset_url
 
@@ -92,7 +96,10 @@ def send_password_reset_email(user_email):
 
 def send_verification_email(user_email):
     verification_url = build_verification_url(user_email)
-    if not current_app.config.get("MAIL_USERNAME") or not current_app.config.get("MAIL_DEFAULT_SENDER"):
+    if not all(
+        has_real_mail_value(current_app.config.get(key))
+        for key in ("MAIL_USERNAME", "MAIL_PASSWORD", "MAIL_DEFAULT_SENDER")
+    ):
         current_app.logger.warning("Mail is not configured. Verification email was not sent.")
         return False, verification_url
 

@@ -1,5 +1,7 @@
 # CareCompass AI
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Gavisingh12/ai-project)
+
 CareCompass AI is a Flask-based medical support dashboard for symptom intake, guided follow-up, consultation history, PDF export, appointment planning, password reset, and hospital lookup.
 
 ## Features
@@ -102,6 +104,16 @@ This repository now includes a [render.yaml](render.yaml) Blueprint file.
 4. Render will read `render.yaml` and create the web service plus database.
 5. Add the missing secret environment values in the Render dashboard.
 6. Trigger a deploy and wait for the health check to pass.
+
+### Preflight check
+
+Before going live, you can validate your local production-style environment with:
+
+```powershell
+python scripts/deploy_preflight.py --production
+```
+
+The script reports missing secrets, insecure cookie settings, SQLite usage, and optional AI warnings before you deploy.
 
 ## Testing
 
