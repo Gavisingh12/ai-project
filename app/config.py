@@ -96,8 +96,15 @@ class BaseConfig:
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "")
     MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", "")
     WKHTMLTOPDF_PATH = os.environ.get("WKHTMLTOPDF_PATH", "")
+    SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
+    GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID", "").strip()
+    SENTRY_DSN = os.environ.get("SENTRY_DSN", "").strip()
     APP_NAME = "CareCompass AI"
     BRAND_TAGLINE = "Smart medical support and care planning"
+    SEO_DEFAULT_DESCRIPTION = (
+        "CareCompass AI is a polished medical support dashboard for symptom intake, "
+        "consultation history, appointments, PDF exports, and hospital discovery."
+    )
     DEBUG = env_bool("FLASK_DEBUG", False)
     TESTING = False
     PREFERRED_URL_SCHEME = "http"

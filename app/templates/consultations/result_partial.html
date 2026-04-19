@@ -1,31 +1,65 @@
+<section class="analysis-summary-card premium-surface">
+  <div>
+    <span class="eyebrow">Clinical summary</span>
+    <h3 class="analysis-title">{{ analysis_text(analysis.presenting_complaint) }}</h3>
+    <p class="section-copy">Use the concise sections below to review likely causes, next checks, treatment direction, medication notes, and safety guidance.</p>
+  </div>
+  <div class="analysis-chip-grid">
+    {% for item in analysis_points(analysis.differential_diagnoses, 3) %}
+      <span class="status-pill">{{ item }}</span>
+    {% endfor %}
+  </div>
+</section>
+
 <div class="result-grid">
   <article class="result-card tilt-card">
-    <span>Presenting complaint</span>
-    <p>{{ analysis.presenting_complaint }}</p>
-  </article>
-  <article class="result-card tilt-card">
     <span>Differential diagnoses</span>
-    <p>{{ analysis.differential_diagnoses }}</p>
+    <ul class="result-list">
+      {% for item in analysis_points(analysis.differential_diagnoses) %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
   </article>
   <article class="result-card tilt-card">
     <span>Investigations</span>
-    <p>{{ analysis.investigations }}</p>
+    <ul class="result-list">
+      {% for item in analysis_points(analysis.investigations) %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
   </article>
   <article class="result-card tilt-card">
     <span>Treatment</span>
-    <p>{{ analysis.treatment }}</p>
+    <ul class="result-list">
+      {% for item in analysis_points(analysis.treatment) %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
   </article>
   <article class="result-card tilt-card">
     <span>Medications</span>
-    <p>{{ analysis.medications }}</p>
+    <ul class="result-list">
+      {% for item in analysis_points(analysis.medications) %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
   </article>
   <article class="result-card tilt-card">
     <span>Precautions</span>
-    <p>{{ analysis.precautions }}</p>
+    <ul class="result-list">
+      {% for item in analysis_points(analysis.precautions) %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </article>
+  <article class="result-card tilt-card result-card-callout">
+    <span>Patient-friendly takeaway</span>
+    <p class="result-callout-copy">{{ analysis_summary(analysis.treatment, 1) }}</p>
+    <small>{{ analysis_summary(analysis.precautions, 1) }}</small>
   </article>
 </div>
 
 <div class="notice-panel">
   <strong>Disclaimer</strong>
-  <p>{{ analysis.disclaimer }}</p>
+  <p>{{ analysis_text(analysis.disclaimer) }}</p>
 </div>

@@ -6,7 +6,7 @@ from io import BytesIO
 import pdfkit
 from flask import current_app, render_template
 
-from app.services.ai import normalize_analysis_payload
+from app.services.ai import analysis_points, analysis_text, normalize_analysis_payload
 
 
 def build_pdfkit_config():
@@ -69,7 +69,11 @@ def consultation_report_lines(consultation, patient_name, analysis):
     lines = []
     for heading, content in sections:
         lines.append(f"{heading}:")
-        lines.extend(wrap_pdf_lines(content))
+        if heading in {"Differential Diagnoses", "Investigations", "Treatment", "Medications", "Precautions"}:
+            for item in analysis_points(content):
+                lines.extend(wrap_pdf_lines(f"- {item}"))
+        else:
+            lines.extend(wrap_pdf_lines(analysis_text(content)))
         lines.append("")
     return lines
 

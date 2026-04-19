@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Consultation Result | {{ app_name }}{% endblock %}
+{% block meta_description %}Structured consultation summary with likely causes, investigations, treatment notes, medication guidance, and precautions.{% endblock %}
 {% block page_heading %}Consultation result{% endblock %}
 {% block scene_mode %}workspace{% endblock %}
 
@@ -9,9 +10,9 @@
     <div class="panel-head">
       <div>
         <span class="eyebrow">Consultation result</span>
-        <h1>AI medical analysis</h1>
+        <h1>Clinical support summary</h1>
       </div>
-      <span class="mini-status">Structured response</span>
+      <span class="mini-status">Cleaned response</span>
     </div>
     {% include "consultations/result_partial.html" %}
     <div class="button-row top-gap">

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Consultation History | {{ app_name }}{% endblock %}
+{% block meta_description %}Review consultation history, export PDF summaries, and track activity trends in CareCompass AI.{% endblock %}
 {% block page_heading %}Consultation history{% endblock %}
 {% block scene_mode %}workspace{% endblock %}
 
@@ -72,7 +73,7 @@
               <tr>
                 <td>{{ consultation.timestamp.strftime('%d %b %Y, %I:%M %p') }}</td>
                 <td>{{ consultation.symptoms }}</td>
-                <td>{{ consultation.analysis.differential_diagnoses }}</td>
+                <td>{{ consultation.summary }}</td>
                 <td>
                   <div class="table-actions">
                     <a class="button ghost small" href="{{ url_for('main.download_pdf', consultation_id=consultation.id) }}">Export PDF</a>

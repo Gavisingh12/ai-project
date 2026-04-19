@@ -19,6 +19,7 @@ os.environ["GEMINI_API_KEY"] = ""
 main2 = importlib.import_module("main2")
 app_module = importlib.import_module("app")
 main_routes = importlib.import_module("app.routes.main")
+ai_service = importlib.import_module("app.services.ai")
 
 
 def extract_csrf_token(html):
@@ -97,6 +98,16 @@ def test_health_endpoint_reports_ok(client):
     payload = response.get_json()
     assert payload["status"] == "ok"
     assert payload["database"]["healthy"] is True
+
+
+def test_robots_and_sitemap_routes_exist(client):
+    robots_response = client.get("/robots.txt")
+    sitemap_response = client.get("/sitemap.xml")
+
+    assert robots_response.status_code == 200
+    assert b"Sitemap:" in robots_response.data
+    assert sitemap_response.status_code == 200
+    assert b"<urlset" in sitemap_response.data
 
 
 def test_register_and_login_flow(client):
@@ -345,3 +356,11 @@ def test_normalize_database_url_uses_psycopg_driver():
     assert normalized == "postgresql+psycopg://user:pass@localhost:5432/carecompass"
     normalized_legacy = importlib.import_module("app.config").normalize_database_url("postgres://user:pass@localhost:5432/carecompass")
     assert normalized_legacy == "postgresql+psycopg://user:pass@localhost:5432/carecompass"
+
+
+def test_analysis_points_split_messy_model_output():
+    messy = '["Primary headaches\\n- Tension-type headache; Migraine episode; Dehydration or eye strain"]'
+    points = ai_service.analysis_points(messy)
+
+    assert len(points) >= 2
+    assert any("Migraine" in point for point in points)

@@ -20,6 +20,13 @@ ANALYSIS_DEFAULTS = {
     "precautions": "No precautions were generated.",
     "disclaimer": "This is an AI-generated analysis and should not replace professional medical advice."
 }
+ANALYSIS_LIST_KEYS = {
+    "differential_diagnoses",
+    "investigations",
+    "treatment",
+    "medications",
+    "precautions",
+}
 
 DISEASE_QUESTIONS = {
     "fever": [
@@ -100,6 +107,62 @@ def normalize_analysis_payload(payload):
         key: payload.get(key) or default
         for key, default in ANALYSIS_DEFAULTS.items()
     }
+
+
+def analysis_text(value):
+    if isinstance(value, list):
+        return ", ".join(filter(None, [analysis_text(item) for item in value]))
+    if isinstance(value, dict):
+        parts = [f"{key}: {analysis_text(item)}" for key, item in value.items() if item]
+        return "; ".join(parts)
+    text = str(value or "").replace("\r", "\n").replace("\\n", "\n").strip()
+    text = text.strip("[]")
+    text = re.sub(r"^[\"']+|[\"']+$", "", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+def analysis_points(value, max_items=6):
+    if isinstance(value, list):
+        raw_chunks = [analysis_text(item) for item in value]
+    elif isinstance(value, dict):
+        raw_chunks = [f"{key}: {analysis_text(item)}" for key, item in value.items() if item]
+    else:
+        normalized = str(value or "").replace("\r", "\n").replace("\\n", "\n").strip()
+        normalized = normalized.strip("[]")
+        normalized = normalized.replace('", "', '"\n"').replace("', '", "'\n'")
+        raw_chunks = re.split(r"\n+|;\s+|\s\|\s", normalized)
+
+    points = []
+    for chunk in raw_chunks:
+        piece = analysis_text(chunk)
+        piece = re.sub(r"^[\-\u2022\*\d\.\)\(]+\s*", "", piece)
+        piece = piece.strip(" \"'")
+        if not piece:
+            continue
+        if len(piece) > 180 and len(raw_chunks) == 1:
+            for sentence in re.split(r"(?<=[.!?])\s+(?=[A-Z])", piece):
+                sentence = analysis_text(sentence)
+                if sentence:
+                    points.append(sentence)
+        else:
+            points.append(piece)
+
+    deduped = []
+    seen = set()
+    for point in points:
+        key = point.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(point)
+
+    return deduped[:max_items] or [analysis_text(value)]
+
+
+def analysis_summary(value, max_items=2):
+    points = analysis_points(value, max_items=max_items)
+    return " ".join(points[:max_items]).strip()
 
 
 def clean_json_response(raw_json):

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="CareCompass AI share card">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#07131d"/>
+      <stop offset="55%" stop-color="#0b1b2a"/>
+      <stop offset="100%" stop-color="#071720"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8ff6e5"/>
+      <stop offset="100%" stop-color="#46d8c7"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1070" cy="120" r="180" fill="#46d8c7" opacity="0.14"/>
+  <circle cx="140" cy="580" r="220" fill="#ff9966" opacity="0.12"/>
+  <rect x="72" y="70" width="88" height="88" rx="26" fill="url(#accent)"/>
+  <path d="M104 114c0-18 13-31 29-31 12 0 22 6 27 15l-12 6c-3-5-8-8-15-8-9 0-16 8-16 18 0 11 7 18 16 18 7 0 12-3 15-8l12 6c-5 9-15 15-27 15-16 0-29-13-29-31Z" fill="#05212a"/>
+  <text x="72" y="250" fill="#edf6ff" font-family="Space Grotesk, Arial, sans-serif" font-size="76" font-weight="700">CareCompass AI</text>
+  <text x="72" y="330" fill="#cfe0ef" font-family="Manrope, Arial, sans-serif" font-size="34">A cleaner clinical support dashboard for symptom intake, reports,</text>
+  <text x="72" y="375" fill="#cfe0ef" font-family="Manrope, Arial, sans-serif" font-size="34">appointments, PDF export, and hospital discovery.</text>
+  <g transform="translate(72 452)">
+    <rect width="250" height="54" rx="27" fill="#ffffff" opacity="0.08"/>
+    <text x="28" y="35" fill="#edf6ff" font-family="Manrope, Arial, sans-serif" font-size="24">Recruiter-ready demo</text>
+  </g>
+  <g transform="translate(344 452)">
+    <rect width="220" height="54" rx="27" fill="#ffffff" opacity="0.08"/>
+    <text x="28" y="35" fill="#edf6ff" font-family="Manrope, Arial, sans-serif" font-size="24">Modern UI system</text>
+  </g>
+  <g transform="translate(586 452)">
+    <rect width="250" height="54" rx="27" fill="#ffffff" opacity="0.08"/>
+    <text x="28" y="35" fill="#edf6ff" font-family="Manrope, Arial, sans-serif" font-size="24">Deployable Flask stack</text>
+  </g>
+</svg>

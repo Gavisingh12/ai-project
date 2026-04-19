@@ -19,31 +19,31 @@
 
     <section>
       <h3>Presenting Complaint</h3>
-      <p>{{ analysis.presenting_complaint }}</p>
+      <p>{{ analysis_text(analysis.presenting_complaint) }}</p>
     </section>
     <section>
       <h3>Differential Diagnoses</h3>
-      <p>{{ analysis.differential_diagnoses }}</p>
+      <ul>{% for item in analysis_points(analysis.differential_diagnoses) %}<li>{{ item }}</li>{% endfor %}</ul>
     </section>
     <section>
       <h3>Investigations</h3>
-      <p>{{ analysis.investigations }}</p>
+      <ul>{% for item in analysis_points(analysis.investigations) %}<li>{{ item }}</li>{% endfor %}</ul>
     </section>
     <section>
       <h3>Treatment</h3>
-      <p>{{ analysis.treatment }}</p>
+      <ul>{% for item in analysis_points(analysis.treatment) %}<li>{{ item }}</li>{% endfor %}</ul>
     </section>
     <section>
       <h3>Medications</h3>
-      <p>{{ analysis.medications }}</p>
+      <ul>{% for item in analysis_points(analysis.medications) %}<li>{{ item }}</li>{% endfor %}</ul>
     </section>
     <section>
       <h3>Precautions</h3>
-      <p>{{ analysis.precautions }}</p>
+      <ul>{% for item in analysis_points(analysis.precautions) %}<li>{{ item }}</li>{% endfor %}</ul>
     </section>
     <div class="notice">
       <strong>Disclaimer</strong>
-      <p>{{ analysis.disclaimer }}</p>
+      <p>{{ analysis_text(analysis.disclaimer) }}</p>
     </div>
   </body>
 </html>

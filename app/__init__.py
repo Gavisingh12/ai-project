@@ -3,7 +3,7 @@ import logging
 import secrets
 
 from dotenv import load_dotenv
-from flask import Flask, abort, jsonify, render_template, request, session
+from flask import Flask, abort, jsonify, render_template, request, session, url_for
 from flask_login import current_user
 from sqlalchemy import inspect, text
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -11,7 +11,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from app.config import get_config, has_real_mail_value
 from app.extensions import db, login_manager, mail
 from app.models import User
-from app.services.ai import configure_ai
+from app.services.ai import analysis_points, analysis_summary, analysis_text, configure_ai
 
 
 load_dotenv()
@@ -26,6 +26,7 @@ def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(get_config())
     validate_runtime_settings(app)
+    configure_error_monitoring(app)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
     db.init_app(app)
@@ -48,6 +49,27 @@ def create_app():
     register_blueprints(app)
 
     return app
+
+
+def configure_error_monitoring(app):
+    dsn = (app.config.get("SENTRY_DSN") or "").strip()
+    if not dsn:
+        return
+
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.flask import FlaskIntegration
+
+        sentry_sdk.init(
+            dsn=dsn,
+            integrations=[FlaskIntegration()],
+            traces_sample_rate=0.1,
+            send_default_pii=False,
+            environment="production" if is_production_mode(app) else "development",
+        )
+        app.logger.info("Sentry error monitoring is enabled.")
+    except Exception as exc:
+        app.logger.warning("Sentry initialization failed: %s", exc)
 
 
 @login_manager.user_loader
@@ -238,16 +260,33 @@ def register_template_helpers(app):
             )
         )
 
+    def site_root():
+        return app.config.get("SITE_URL") or request.url_root.rstrip("/")
+
+    def canonical_url():
+        return f"{site_root()}{request.path}"
+
+    def social_image_url():
+        return url_for("static", filename="brand/og-card.svg", _external=True)
+
     @app.context_processor
     def inject_helpers():
         return {
             "app_name": app.config["APP_NAME"],
             "brand_tagline": app.config["BRAND_TAGLINE"],
+            "seo_default_description": app.config["SEO_DEFAULT_DESCRIPTION"],
             "csrf_token": get_csrf_token,
             "system_status": get_system_status(),
             "is_authenticated": current_user.is_authenticated,
             "email_verification_required": app.config["REQUIRE_EMAIL_VERIFICATION"],
             "password_reset_available": password_reset_available(),
+            "analysis_points": analysis_points,
+            "analysis_text": analysis_text,
+            "analysis_summary": analysis_summary,
+            "site_root": site_root(),
+            "canonical_url": canonical_url(),
+            "social_image_url": social_image_url(),
+            "ga_measurement_id": app.config["GA_MEASUREMENT_ID"],
         }
 
 

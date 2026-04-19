@@ -1,0 +1,16 @@
+{
+  "name": "CareCompass AI",
+  "short_name": "CareCompass",
+  "description": "Medical support dashboard for symptom intake, reports, appointments, and hospital discovery.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07131d",
+  "theme_color": "#07131d",
+  "icons": [
+    {
+      "src": "/static/brand/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

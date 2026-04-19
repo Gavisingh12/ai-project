@@ -1,13 +1,14 @@
 import json
 import datetime
 
-from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, send_file, session, url_for
+from flask import Blueprint, Response, current_app, flash, jsonify, redirect, render_template, request, send_file, session, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import func
 
 from app.extensions import db
 from app.models import Appointment, Consultation
 from app.services.ai import (
+    analysis_summary,
     ask_gemini,
     generate_followup_questions,
     match_disease,
@@ -30,9 +31,13 @@ def build_analysis_prompt(patient_name, symptoms, followup_responses=None):
     if followup_responses:
         prompt.append(f"Follow-up responses: {followup_responses}.")
     prompt.append(
-        "Provide a detailed medical analysis in valid JSON format with no comments. "
-        "Include the keys: presenting_complaint, differential_diagnoses, investigations, "
-        "treatment, medications, precautions, and disclaimer."
+        "Return valid JSON only with no markdown fences or comments. "
+        "Use these keys exactly: presenting_complaint, differential_diagnoses, investigations, "
+        "treatment, medications, precautions, and disclaimer. "
+        "Keep the response concise and dashboard-friendly. "
+        "Use one short sentence for presenting_complaint and disclaimer. "
+        "For differential_diagnoses, investigations, treatment, medications, and precautions, "
+        "prefer arrays of 2 to 5 concise bullet items with each item under 28 words."
     )
     return " ".join(prompt)
 
@@ -64,7 +69,7 @@ def consultation_card_context(limit=4):
             "id": consultation.id,
             "timestamp": consultation.timestamp,
             "symptoms": consultation.symptoms,
-            "summary": analysis.get("differential_diagnoses")
+            "summary": analysis_summary(analysis.get("differential_diagnoses"))
         })
     return items
 
@@ -82,6 +87,32 @@ def health():
 
     status = get_system_status()
     return jsonify(status), 200 if status["database"]["healthy"] else 503
+
+
+@main_bp.route("/robots.txt")
+def robots():
+    site_url = current_app.config.get("SITE_URL") or request.url_root.rstrip("/")
+    content = "\n".join([
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /dashboard",
+        "Disallow: /history",
+        "Disallow: /appointment",
+        "Disallow: /hospital_locator",
+        f"Sitemap: {site_url}/sitemap.xml",
+    ])
+    return Response(content, mimetype="text/plain")
+
+
+@main_bp.route("/sitemap.xml")
+def sitemap():
+    urls = [
+        url_for("main.home", _external=True),
+        url_for("auth.login", _external=True),
+        url_for("auth.register", _external=True),
+    ]
+    xml = render_template("sitemap.xml", urls=urls)
+    return Response(xml, mimetype="application/xml")
 
 
 @main_bp.route("/dashboard", methods=["GET", "POST"])
@@ -237,7 +268,8 @@ def history():
             "id": consultation.id,
             "timestamp": consultation.timestamp,
             "symptoms": consultation.symptoms,
-            "analysis": analysis
+            "analysis": analysis,
+            "summary": analysis_summary(analysis.get("differential_diagnoses"))
         })
 
     chart_labels = sorted(date_totals.keys())

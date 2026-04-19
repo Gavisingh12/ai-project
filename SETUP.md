@@ -15,6 +15,7 @@
    - optional `GEMINI_API_KEY`
    - optional mail credentials for real inbox delivery
    - optional `WKHTMLTOPDF_PATH`
+   - optional `SITE_URL`, `GA_MEASUREMENT_ID`, and `SENTRY_DSN`
 4. Start the app:
    ```powershell
    python main2.py
@@ -29,9 +30,11 @@
 2. In Render, deploy the repository as a Blueprint using `render.yaml`.
 3. Keep `REQUIRE_EMAIL_VERIFICATION=False` for the free demo deployment.
 4. Add `GEMINI_API_KEY` only if you want richer AI responses.
-5. Wait for the Render health check on `/health` to pass.
-6. Create a fresh account on the live site and sign in directly without inbox confirmation.
-7. Remember that Render free Postgres is temporary and the free web service can spin down when idle.
+5. Add `SITE_URL` once you connect a custom domain.
+6. Add `GA_MEASUREMENT_ID` if you want analytics and `SENTRY_DSN` if you want production error alerts.
+7. Wait for the Render health check on `/health` to pass.
+8. Create a fresh account on the live site and sign in directly without inbox confirmation.
+9. Remember that Render free Postgres is temporary and the free web service can spin down when idle.
 
 ## Production Preflight
 
@@ -48,6 +51,7 @@ What it checks:
 - secure cookies enabled
 - dev routes disabled
 - mail settings only when email verification is enabled
+- optional canonical URL, analytics, and monitoring variables
 - optional AI key warning
 
 ## Application Layout
@@ -74,5 +78,6 @@ What it checks:
 - The app reads `DATABASE_URL` for production databases and defaults to local SQLite during development.
 - Email verification is disabled by default so the free public demo can run without SMTP.
 - If you later turn `REQUIRE_EMAIL_VERIFICATION=True`, you must also configure the mail variables.
+- `SITE_URL`, `GA_MEASUREMENT_ID`, and `SENTRY_DSN` are optional but useful for a recruiter-ready deployment.
 - Waitress is included for production serving.
 - PDF export remains available even when `wkhtmltopdf` is missing because a built-in fallback is included.

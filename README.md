@@ -15,6 +15,18 @@ CareCompass AI is a Flask-based medical support dashboard for symptom intake, gu
 - Hospital locator with map view
 - Password reset flow when mail is configured
 - Health-check endpoint for deployment monitoring
+- SEO-ready metadata, sitemap, robots, favicon, and social share card
+- Optional Google Analytics and Sentry monitoring via environment variables
+
+## Recruiter Snapshot
+
+CareCompass AI is a production-minded Flask application that turns symptom intake into a cleaner clinical support workflow. It combines structured AI output, consultation history, appointment planning, PDF reports, health monitoring, and deployable infrastructure in one polished demo.
+
+## Resume-Ready Description
+
+- Built and deployed a full-stack Flask healthcare support dashboard with AI-assisted symptom analysis, PDF reporting, hospital discovery, and appointment planning.
+- Designed a polished recruiter-facing UI with structured clinical summaries, responsive dashboard layouts, SEO metadata, and production-ready observability hooks.
+- Prepared the application for cloud deployment with PostgreSQL, environment-based configuration, health checks, and optional analytics and error monitoring.
 
 ## Stack
 
@@ -55,6 +67,9 @@ CareCompass AI is a Flask-based medical support dashboard for symptom intake, gu
 - `MAIL_USERNAME`: optional unless email verification is enabled
 - `MAIL_PASSWORD`: optional unless email verification is enabled
 - `MAIL_DEFAULT_SENDER`: optional unless email verification is enabled
+- `SITE_URL`: optional custom domain or canonical base URL
+- `GA_MEASUREMENT_ID`: optional Google Analytics 4 measurement ID
+- `SENTRY_DSN`: optional Sentry DSN for production error monitoring
 - `SESSION_COOKIE_SECURE`: should be `true` in production
 - `REMEMBER_COOKIE_SECURE`: should be `true` in production
 - `ENABLE_DEV_ROUTES`: keep `false` in production
@@ -88,6 +103,9 @@ This repository now includes a [render.yaml](render.yaml) Blueprint file.
 ### Environment values you still need to set in Render
 
 - `GEMINI_API_KEY`
+- `SITE_URL` if you add a custom domain later
+- `GA_MEASUREMENT_ID` if you want Google Analytics
+- `SENTRY_DSN` if you want production error monitoring
 
 ### Deploy steps
 
@@ -108,6 +126,12 @@ python scripts/deploy_preflight.py --production
 ```
 
 The script reports missing secrets, insecure cookie settings, SQLite usage, and optional AI warnings before you deploy.
+
+## Custom Domain And Monitoring
+
+- Add your domain in Render, then set `SITE_URL` to that final `https://` address.
+- Add `GA_MEASUREMENT_ID` to enable Google Analytics 4 page tracking.
+- Add `SENTRY_DSN` to enable Sentry-based production error monitoring.
 
 ## Testing
 
