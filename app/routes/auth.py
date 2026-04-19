@@ -42,10 +42,13 @@ def validate_password_strength(password):
 
 
 def allow_local_verification():
+    host = ((request.host or "").split(":", 1)[0]).lower()
     return bool(
         current_app.config.get("TESTING")
         or current_app.config.get("DEBUG")
         or current_app.config.get("ENABLE_DEV_ROUTES")
+        or not current_app.config.get("SESSION_COOKIE_SECURE")
+        or host in {"127.0.0.1", "localhost"}
     )
 
 

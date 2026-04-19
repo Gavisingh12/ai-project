@@ -89,6 +89,11 @@ This repository now includes a [render.yaml](render.yaml) Blueprint file.
 - `MAIL_PASSWORD`
 - `MAIL_DEFAULT_SENDER`
 
+### Local verification note
+
+- On `localhost`, if mail credentials are not configured yet, the app now shows a local verification button instead of blocking signup.
+- On the live deployment, real mail credentials are still required so account confirmation reaches the user's inbox.
+
 ### Deploy steps
 
 1. Push this repository to GitHub.
