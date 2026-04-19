@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}{{ app_name }} | Smart Care Dashboard{% endblock %}
+{% block body_class %}landing-body{% endblock %}
+{% block scene_mode %}marketing{% endblock %}
+
+{% block content %}
+  <section class="hero-panel">
+    <div class="hero-copy">
+      <span class="eyebrow">Smart care support</span>
+      <h1>Track symptoms, plan visits, and keep your health notes in one calm dashboard.</h1>
+      <p>
+        CareCompass AI helps you record symptoms, save consultations, plan appointments,
+        find nearby hospitals, and download reports whenever you need them.
+      </p>
+      <div class="button-row">
+        <a class="button primary" href="{{ url_for('auth.register') }}">Start New Account</a>
+        <a class="button ghost" href="{{ url_for('auth.login') }}">Log in</a>
+      </div>
+      <div class="hero-badges">
+        <span>Private account</span>
+        <span>Guided symptom support</span>
+        <span>Saved consultation history</span>
+        <span>PDF reports</span>
+      </div>
+    </div>
+
+    <div class="hero-card showcase-card tilt-card">
+      <div class="showcase-header">
+        <strong>Everything in one place</strong>
+        <span class="status-pill status-live">Ready to use</span>
+      </div>
+      <div class="stat-grid">
+        <article class="stat-card">
+          <span>Symptom checks</span>
+          <strong>Fast guided analysis</strong>
+        </article>
+        <article class="stat-card">
+          <span>Appointments</span>
+          <strong>Plan doctor visits</strong>
+        </article>
+        <article class="stat-card">
+          <span>Hospitals</span>
+          <strong>Find care near you</strong>
+        </article>
+        <article class="stat-card">
+          <span>Reports</span>
+          <strong>Download your records</strong>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust-strip">
+    <article class="trust-card">
+      <span>01</span>
+      <strong>Understand symptoms</strong>
+      <p>Describe how you feel and get guided next steps in a clear format.</p>
+    </article>
+    <article class="trust-card">
+      <span>02</span>
+      <strong>Stay organized</strong>
+      <p>Keep appointments, saved records, and recent activity together.</p>
+    </article>
+    <article class="trust-card">
+      <span>03</span>
+      <strong>Download and revisit</strong>
+      <p>Open past consultations anytime and export them as clean PDF reports.</p>
+    </article>
+  </section>
+
+  <section class="feature-grid">
+    <article class="feature-card tilt-card">
+      <h3>Simple to use</h3>
+      <p>The interface keeps the important actions visible so it feels easy from the first click.</p>
+    </article>
+    <article class="feature-card tilt-card">
+      <h3>Your records stay organized</h3>
+      <p>Consultations, appointments, and hospital search results are easier to revisit when you need them.</p>
+    </article>
+    <article class="feature-card tilt-card">
+      <h3>Calm modern design</h3>
+      <p>A cleaner layout, depth, and motion make the dashboard feel polished without becoming confusing.</p>
+    </article>
+  </section>
+{% endblock %}

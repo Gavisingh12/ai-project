@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Hospital Locator | {{ app_name }}{% endblock %}
+{% block page_heading %}Hospital and care discovery{% endblock %}
+{% block scene_mode %}workspace{% endblock %}
+
+{% block content %}
+  <section class="workspace-hero compact-hero premium-surface">
+    <div class="workspace-hero-copy">
+      <span class="eyebrow">Hospital locator</span>
+      <h1>Find care centers by city</h1>
+      <p class="section-copy">Search a city to explore nearby care options and view them on the map.</p>
+    </div>
+    <div class="mini-metrics">
+      <article class="metric-card tilt-card">
+        <span>Search mode</span>
+        <strong>{{ city if city else 'Idle' }}</strong>
+      </article>
+      <article class="metric-card tilt-card">
+        <span>Visible hospitals</span>
+        <strong data-countup="{{ hospital_cards|length }}">0</strong>
+      </article>
+    </div>
+  </section>
+
+  <section class="dashboard-grid dashboard-grid-advanced locator-grid">
+    <article class="panel premium-surface">
+      <div class="panel-head">
+        <div>
+          <span class="eyebrow">Search</span>
+          <h2>City-based discovery</h2>
+        </div>
+      </div>
+
+      <form method="get" class="search-row search-row-elevated">
+        <input type="text" name="city" value="{{ city }}" placeholder="Enter city name" required>
+        <button type="submit" class="button primary">Search</button>
+      </form>
+
+      <div class="finder-info">
+        <p>Use this view to explore a clean map-first experience instead of the old plain form page.</p>
+      </div>
+
+      {% if hospital_cards %}
+        <div class="hospital-card-list">
+          {% for hospital in hospital_cards %}
+            <article class="hospital-card tilt-card" style="--card-accent: {{ hospital.accent }}">
+              <span class="hospital-distance">{{ hospital.distance }}</span>
+              <strong>{{ hospital.name }}</strong>
+              <p>{{ hospital.type }}</p>
+              <small>{{ hospital.hours }}</small>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="section-copy">Search a city to load care center suggestions and the interactive map.</p>
+      {% endif %}
+    </article>
+
+    <article class="panel map-panel">
+      <div class="panel-head">
+        <div>
+          <span class="eyebrow">Map</span>
+          <h2>Care coverage view</h2>
+        </div>
+      </div>
+      {% if map_html %}
+        <div class="map-shell elevated-map">
+          {{ map_html|safe }}
+        </div>
+      {% else %}
+        <div class="map-placeholder">
+          <div class="map-placeholder-core"></div>
+          <p>Map preview appears here after you search a city.</p>
+        </div>
+      {% endif %}
+    </article>
+  </section>
+{% endblock %}

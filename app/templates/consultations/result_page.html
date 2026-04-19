@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Consultation Result | {{ app_name }}{% endblock %}
+{% block page_heading %}Consultation result{% endblock %}
+{% block scene_mode %}workspace{% endblock %}
+
+{% block content %}
+  <section class="panel premium-surface">
+    <div class="panel-head">
+      <div>
+        <span class="eyebrow">Consultation result</span>
+        <h1>AI medical analysis</h1>
+      </div>
+      <span class="mini-status">Structured response</span>
+    </div>
+    {% include "consultations/result_partial.html" %}
+    <div class="button-row top-gap">
+      <a class="button primary" href="{{ url_for('main.dashboard') }}">Back to dashboard</a>
+      <a class="button ghost" href="{{ url_for('main.history') }}">Open consultation history</a>
+    </div>
+  </section>
+{% endblock %}

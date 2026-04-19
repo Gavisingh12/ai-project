@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Not Found | {{ app_name }}{% endblock %}
+
+{% block content %}
+  <section class="panel error-panel">
+    <h1>This page does not exist</h1>
+    <p>The route you requested could not be found.</p>
+    <a class="button primary" href="{{ url_for('main.home') }}">Back to home</a>
+  </section>
+{% endblock %}

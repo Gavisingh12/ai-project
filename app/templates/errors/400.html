@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Bad Request | {{ app_name }}{% endblock %}
+
+{% block content %}
+  <section class="panel error-panel">
+    <h1>Request could not be processed</h1>
+    <p>{{ message }}</p>
+    <a class="button primary" href="{{ url_for('main.home') }}">Back to home</a>
+  </section>
+{% endblock %}

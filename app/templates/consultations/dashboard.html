@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | {{ app_name }}{% endblock %}
+{% block page_heading %}Your care dashboard{% endblock %}
+{% block scene_mode %}workspace{% endblock %}
+
+{% block content %}
+  <section class="workspace-hero premium-surface">
+    <div class="workspace-hero-copy">
+      <span class="eyebrow">Welcome back</span>
+      <h1>Hello, {{ current_user.greeting_name }}</h1>
+      <p class="section-copy">
+        Describe symptoms, review saved consultations, plan visits,
+        and keep your health information together in one place.
+      </p>
+      <div class="hero-badges">
+        <span>Saved history</span>
+        <span>Appointments</span>
+        <span>Nearby hospitals</span>
+        <span>PDF reports</span>
+      </div>
+    </div>
+
+    <div class="hero-score-card tilt-card">
+      <span class="eyebrow">Care activity</span>
+      <div class="score-ring" style="--score: {{ activity_score }}">
+        <div>
+          <strong data-countup="{{ activity_score }}">0</strong>
+          <small>/ 100</small>
+        </div>
+      </div>
+      <p>This score grows as you save consultations and manage your next appointments.</p>
+    </div>
+  </section>
+
+  <section class="metric-grid enhanced-metrics">
+    <article class="metric-card tilt-card">
+      <span>Total consultations</span>
+      <strong data-countup="{{ consultation_count }}">0</strong>
+      <small>All saved activity</small>
+    </article>
+    <article class="metric-card tilt-card">
+      <span>Upcoming appointments</span>
+      <strong data-countup="{{ appointment_count }}">0</strong>
+      <small>Scheduled patient interactions</small>
+    </article>
+    <article class="metric-card tilt-card">
+      <span>Active days</span>
+      <strong data-countup="{{ active_days }}">0</strong>
+      <small>Days with stored consultations</small>
+    </article>
+    <article class="metric-card tilt-card">
+      <span>Support mode</span>
+      <strong>{{ 'Enhanced' if system_status.ai.enabled else 'Standard' }}</strong>
+      <small>{{ 'More detailed responses are available' if system_status.ai.enabled else 'Helpful guidance still works in standard mode' }}</small>
+    </article>
+  </section>
+
+  <section class="dashboard-grid dashboard-grid-advanced">
+    <article class="panel composer-panel glass-panel">
+        <div class="panel-head">
+          <div>
+            <span class="eyebrow">Consultation intake</span>
+            <h2>Describe your symptoms</h2>
+          </div>
+          <span class="mini-status">Guided response</span>
+        </div>
+      <form id="diagnosisForm" method="post" class="stack-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>
+          <span>Symptom description</span>
+          <textarea id="symptoms" name="symptoms" rows="7" placeholder="Example: I have had a fever, sore throat, fatigue, and mild body ache for 2 days..." required></textarea>
+        </label>
+        <div class="button-row compact">
+          <button type="submit" class="button primary">Generate consultation analysis</button>
+          <a class="button ghost" href="{{ url_for('main.followup') }}">Continue last follow-up</a>
+        </div>
+      </form>
+      <div id="diagnosisFeedback" class="status-inline hidden">Working on your analysis...</div>
+    </article>
+
+    <div class="dashboard-side-stack">
+      <article class="panel tilt-card">
+        <div class="panel-head">
+          <div>
+            <span class="eyebrow">Next appointment</span>
+            <h2>Schedule snapshot</h2>
+          </div>
+        </div>
+        {% if next_appointment %}
+          <div class="snapshot-card">
+            <strong>{{ next_appointment.doctor }}</strong>
+            <p>{{ next_appointment.date.strftime('%d %b %Y') }} at {{ next_appointment.time }}</p>
+            <small>{{ next_appointment.notes or 'No notes added yet.' }}</small>
+          </div>
+        {% else %}
+          <p class="section-copy">No upcoming appointment is scheduled yet.</p>
+        {% endif %}
+      </article>
+
+      <article class="panel tilt-card">
+        <div class="panel-head">
+          <div>
+            <span class="eyebrow">Quick highlights</span>
+            <h2>Your account summary</h2>
+          </div>
+        </div>
+        <div class="highlight-list">
+          {% for item in workspace_highlights %}
+            <article class="highlight-item tone-{{ item.tone }}">
+              <strong>{{ item.title }}</strong>
+              <p>{{ item.value }}</p>
+            </article>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="panel tilt-card">
+        <div class="panel-head">
+          <div>
+            <span class="eyebrow">Last update</span>
+            <h2>Recent consultation</h2>
+          </div>
+        </div>
+        {% if latest_consultation %}
+          <p class="section-copy">{{ latest_consultation.symptoms }}</p>
+          <a class="button ghost small" href="{{ url_for('main.history') }}">Open full history</a>
+        {% else %}
+          <p class="section-copy">Generate your first consultation to start building the activity timeline.</p>
+        {% endif %}
+      </article>
+    </div>
+  </section>
+
+  <section class="panel result-panel premium-surface" id="diagnosis-result-container">
+    <div class="panel-head">
+      <div>
+        <span class="eyebrow">Analysis output</span>
+        <h2>Your AI medical analysis will appear here</h2>
+      </div>
+    </div>
+    <div id="diagnosis-result-content">
+      <p class="section-copy">Your result will appear here as soon as the analysis is ready.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <span class="eyebrow">Recent activity</span>
+        <h2>Latest consultations</h2>
+      </div>
+    </div>
+    {% if recent_consultations %}
+      <div class="activity-grid">
+        {% for item in recent_consultations %}
+          <article class="activity-card tilt-card">
+            <small>{{ item.timestamp.strftime('%d %b %Y, %I:%M %p') }}</small>
+            <strong>{{ item.symptoms }}</strong>
+            <p>{{ item.summary }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="section-copy">No consultations yet. Start with the symptom intake panel above.</p>
+    {% endif %}
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Email | {{ app_name }}{% endblock %}
+{% block scene_mode %}auth{% endblock %}
+
+{% block content %}
+  <section class="auth-shell narrow">
+    <div class="auth-card tilt-card">
+      <div class="panel-head">
+        <div>
+          <span class="eyebrow">Account confirmation</span>
+          <h2>Check your email</h2>
+        </div>
+      </div>
+
+      <p class="section-copy">
+        {% if resent %}
+          We prepared a fresh verification link for <strong>{{ email }}</strong>.
+        {% else %}
+          Your account for <strong>{{ name }}</strong> is almost ready.
+        {% endif %}
+      </p>
+
+      {% if email_sent %}
+        <p class="section-copy">
+          Open your inbox and click the confirmation link to activate your account.
+        </p>
+      {% elif verification_link %}
+        <p class="section-copy">
+          Email sending is not configured right now, so you can finish verification locally using the button below.
+        </p>
+        <div class="button-row top-gap">
+          <a class="button primary" href="{{ verification_link }}">Verify account</a>
+          <a class="button ghost" href="{{ url_for('auth.login') }}">Back to login</a>
+        </div>
+      {% else %}
+        <p class="section-copy">
+          We could not send the confirmation email right now. Please try again in a moment or contact support.
+        </p>
+        <div class="button-row top-gap">
+          <a class="button ghost" href="{{ url_for('auth.login') }}">Back to login</a>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

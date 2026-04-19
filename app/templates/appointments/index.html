@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Appointments | {{ app_name }}{% endblock %}
+{% block page_heading %}Appointments and planning{% endblock %}
+{% block scene_mode %}workspace{% endblock %}
+
+{% block content %}
+  <section class="workspace-hero compact-hero premium-surface">
+    <div class="workspace-hero-copy">
+      <span class="eyebrow">Appointments</span>
+      <h1>Plan and track your visits</h1>
+      <p class="section-copy">Keep doctor visits, reminders, and context organized in one timeline.</p>
+    </div>
+    <div class="mini-metrics">
+      <article class="metric-card tilt-card">
+        <span>Upcoming count</span>
+        <strong data-countup="{{ upcoming_count }}">0</strong>
+      </article>
+      <article class="metric-card tilt-card">
+        <span>Next visit</span>
+        <strong>{{ next_appointment.date.strftime('%d %b') if next_appointment else 'None' }}</strong>
+      </article>
+    </div>
+  </section>
+
+  <section class="dashboard-grid dashboard-grid-advanced">
+    <article class="panel premium-surface">
+      <div class="panel-head">
+        <div>
+          <span class="eyebrow">Schedule</span>
+          <h2>New appointment</h2>
+        </div>
+      </div>
+      <form method="post" class="stack-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>
+          <span>Date</span>
+          <input type="date" name="date" min="{{ today_iso }}" required>
+        </label>
+        <label>
+          <span>Time</span>
+          <input type="time" name="time" required>
+        </label>
+        <label>
+          <span>Doctor name</span>
+          <input type="text" name="doctor" maxlength="100" placeholder="Dr. Sharma" required>
+        </label>
+        <label>
+          <span>Notes</span>
+          <textarea name="notes" rows="4" maxlength="500" placeholder="Optional agenda, symptoms, or reminders"></textarea>
+        </label>
+        <button type="submit" class="button primary">Add appointment</button>
+      </form>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <span class="eyebrow">Schedule board</span>
+          <h2>Upcoming appointments</h2>
+        </div>
+      </div>
+      {% if appointments %}
+        <div class="appointment-list">
+          {% for appointment in appointments %}
+            <article class="appointment-card tilt-card">
+              <div class="appointment-info">
+                <strong>{{ appointment.doctor }}</strong>
+                <p>{{ appointment.date.strftime('%d %b %Y') }} at {{ appointment.time }}</p>
+                <small>{{ appointment.notes or 'No notes added.' }}</small>
+              </div>
+              <form method="post" action="{{ url_for('main.delete_appointment', appointment_id=appointment.id) }}" onsubmit="return confirm('Cancel this appointment?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="button danger small">Cancel</button>
+              </form>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="section-copy">No appointments scheduled yet.</p>
+      {% endif %}
+    </article>
+  </section>
+{% endblock %}

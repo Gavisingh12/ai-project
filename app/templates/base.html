@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ app_name }}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    {% block head %}{% endblock %}
+  </head>
+  {% set is_authenticated = current_user.is_authenticated %}
+  <body
+    class="{% block body_class %}app-body{% endblock %}{% if is_authenticated %} authenticated-body{% endif %}"
+    data-scene-mode="{% block scene_mode %}{% if is_authenticated %}workspace{% else %}marketing{% endif %}{% endblock %}"
+  >
+    <canvas id="scene-canvas" class="scene-canvas" aria-hidden="true"></canvas>
+    <div class="scene-noise" aria-hidden="true"></div>
+    <div class="ambient ambient-top"></div>
+    <div class="ambient ambient-bottom"></div>
+
+    {% if is_authenticated %}
+      <div class="workspace-frame">
+        <aside class="app-rail">
+          <div class="rail-brand">
+            <a class="brand-lockup" href="{{ url_for('main.dashboard') }}">
+              <span class="brand-mark">C</span>
+              <span>
+                <strong>{{ app_name }}</strong>
+                <small>{{ brand_tagline }}</small>
+              </span>
+            </a>
+          </div>
+
+          <nav class="rail-nav">
+            <a class="rail-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">
+              <span class="rail-icon">01</span>
+              <span>Dashboard</span>
+            </a>
+            <a class="rail-link {% if request.endpoint == 'main.history' %}active{% endif %}" href="{{ url_for('main.history') }}">
+              <span class="rail-icon">02</span>
+              <span>History</span>
+            </a>
+            <a class="rail-link {% if request.endpoint == 'main.appointment' %}active{% endif %}" href="{{ url_for('main.appointment') }}">
+              <span class="rail-icon">03</span>
+              <span>Appointments</span>
+            </a>
+            <a class="rail-link {% if request.endpoint == 'main.hospital_locator' %}active{% endif %}" href="{{ url_for('main.hospital_locator') }}">
+              <span class="rail-icon">04</span>
+              <span>Hospital Finder</span>
+            </a>
+          </nav>
+
+          <div class="rail-footer">
+            <div class="profile-card tilt-card">
+              <small>Account</small>
+              <strong>{{ current_user.display_name }}</strong>
+              <span>Your saved history, reports, and appointments stay here.</span>
+            </div>
+            <a class="button ghost wide" href="{{ url_for('auth.logout') }}">Logout</a>
+          </div>
+        </aside>
+
+        <section class="workspace-main">
+          <header class="workspace-topbar">
+            <div>
+              <span class="eyebrow">Care dashboard</span>
+              <h2 class="topbar-title">{% block page_heading %}Your health dashboard{% endblock %}</h2>
+            </div>
+            <div class="topbar-status">
+              <span class="status-dot"></span>
+              <span>Guided support</span>
+            </div>
+          </header>
+
+          <main class="workspace-content">
+    {% else %}
+      <header class="site-header">
+        <div class="site-shell nav-shell">
+          <a class="brand-lockup" href="{{ url_for('main.home') }}">
+            <span class="brand-mark">C</span>
+            <span>
+              <strong>{{ app_name }}</strong>
+              <small>{{ brand_tagline }}</small>
+            </span>
+          </a>
+
+          <nav class="nav-links">
+            <a href="{{ url_for('main.home') }}">Home</a>
+            <a href="{{ url_for('auth.login') }}">Login</a>
+            <a class="button ghost small" href="{{ url_for('auth.register') }}">Create account</a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="site-shell main-shell">
+    {% endif %}
+
+        {% include "partials/flash.html" %}
+        {% block content %}{% endblock %}
+
+    {% if is_authenticated %}
+          </main>
+        </section>
+      </div>
+    {% else %}
+      </main>
+    {% endif %}
+
+    <script type="module" src="{{ url_for('static', filename='js/scene.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

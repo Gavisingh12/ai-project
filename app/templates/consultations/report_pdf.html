@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Consultation Report</title>
+    <style>
+      body { font-family: Arial, sans-serif; color: #17313b; margin: 32px; }
+      h1 { color: #0f766e; }
+      h3 { margin-bottom: 8px; }
+      section { margin-top: 18px; }
+      .notice { margin-top: 24px; padding: 12px; background: #f9edd7; border-radius: 10px; }
+    </style>
+  </head>
+  <body>
+    <h1>CareCompass AI Consultation Report</h1>
+    <p><strong>Date:</strong> {{ consultation.timestamp.strftime('%d %b %Y, %I:%M %p') }}</p>
+    <p><strong>Patient:</strong> {{ patient_name }}</p>
+    <p><strong>Symptoms:</strong> {{ consultation.symptoms }}</p>
+
+    <section>
+      <h3>Presenting Complaint</h3>
+      <p>{{ analysis.presenting_complaint }}</p>
+    </section>
+    <section>
+      <h3>Differential Diagnoses</h3>
+      <p>{{ analysis.differential_diagnoses }}</p>
+    </section>
+    <section>
+      <h3>Investigations</h3>
+      <p>{{ analysis.investigations }}</p>
+    </section>
+    <section>
+      <h3>Treatment</h3>
+      <p>{{ analysis.treatment }}</p>
+    </section>
+    <section>
+      <h3>Medications</h3>
+      <p>{{ analysis.medications }}</p>
+    </section>
+    <section>
+      <h3>Precautions</h3>
+      <p>{{ analysis.precautions }}</p>
+    </section>
+    <div class="notice">
+      <strong>Disclaimer</strong>
+      <p>{{ analysis.disclaimer }}</p>
+    </div>
+  </body>
+</html>

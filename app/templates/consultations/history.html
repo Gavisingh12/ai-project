@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Consultation History | {{ app_name }}{% endblock %}
+{% block page_heading %}Consultation history{% endblock %}
+{% block scene_mode %}workspace{% endblock %}
+
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+  <section class="workspace-hero compact-hero premium-surface">
+    <div class="workspace-hero-copy">
+      <span class="eyebrow">History</span>
+      <h1>Your saved consultations</h1>
+      <p class="section-copy">Review past symptom notes, follow your activity over time, and download reports when needed.</p>
+    </div>
+    <div class="mini-metrics">
+      <article class="metric-card tilt-card">
+        <span>Total records</span>
+        <strong data-countup="{{ total_consultations }}">0</strong>
+      </article>
+      <article class="metric-card tilt-card">
+        <span>Most recent</span>
+        <strong>{{ most_recent.strftime('%d %b') if most_recent else 'None' }}</strong>
+      </article>
+      <article class="metric-card tilt-card">
+        <span>Most active day</span>
+        <strong>{{ most_active_day if most_active_day else 'N/A' }}</strong>
+      </article>
+    </div>
+  </section>
+
+  <section class="panel premium-surface">
+    <div class="panel-head">
+        <div>
+          <span class="eyebrow">Overview</span>
+          <h2>Consultation activity</h2>
+        </div>
+    </div>
+
+    {% if chart_labels %}
+      <div class="chart-shell large-chart">
+        <canvas id="historyChart"></canvas>
+      </div>
+    {% else %}
+      <p class="section-copy">No consultation history yet.</p>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+        <div>
+          <span class="eyebrow">Records</span>
+          <h2>Saved records</h2>
+        </div>
+    </div>
+
+    {% if consultations %}
+      <div class="table-shell">
+        <table class="data-table polished-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Symptoms</th>
+              <th>Summary</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for consultation in consultations %}
+              <tr>
+                <td>{{ consultation.timestamp.strftime('%d %b %Y, %I:%M %p') }}</td>
+                <td>{{ consultation.symptoms }}</td>
+                <td>{{ consultation.analysis.differential_diagnoses }}</td>
+                <td>
+                  <div class="table-actions">
+                    <a class="button ghost small" href="{{ url_for('main.download_pdf', consultation_id=consultation.id) }}">Export PDF</a>
+                    <form method="post" action="{{ url_for('main.delete_consultation', consultation_id=consultation.id) }}" onsubmit="return confirm('Delete this consultation record?')">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="button danger small">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="section-copy">Once you generate analyses, they will appear here.</p>
+    {% endif %}
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  {% if chart_labels %}
+    <script>
+      const ctx = document.getElementById('historyChart');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: {{ chart_labels|tojson }},
+          datasets: [{
+            label: 'Consultations',
+            data: {{ chart_data|tojson }},
+            borderColor: '#0f766e',
+            backgroundColor: 'rgba(15, 118, 110, 0.18)',
+            tension: 0.35,
+            fill: true,
+            borderWidth: 3,
+            pointRadius: 4,
+            pointBackgroundColor: '#f08c5a'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#dce7f2' }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#dce7f2' },
+              grid: { color: 'rgba(220, 231, 242, 0.12)' }
+            }
+          }
+        }
+      });
+    </script>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,14 @@
+.env
+.venv/
+venv/
+myenv/
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+instance/*.db
+*.db
+*.pyc
+*.pyo
+*.pyd
+.DS_Store

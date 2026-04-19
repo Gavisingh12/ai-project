@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Follow-up Questions | {{ app_name }}{% endblock %}
+{% block page_heading %}Guided follow-up workflow{% endblock %}
+{% block scene_mode %}workspace{% endblock %}
+
+{% block content %}
+  <section class="panel premium-surface">
+    <div class="panel-head">
+      <div>
+        <span class="eyebrow">Guided follow-up</span>
+        <h1>More context for {{ disease_name|replace('-', ' ')|title }}</h1>
+      </div>
+      <span class="mini-status">{{ questions|length }} prompts</span>
+    </div>
+    <p class="section-copy">Answer each prompt naturally. The AI model will use this context to refine the consultation output.</p>
+
+    <form method="post" class="stack-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {% for question in questions %}
+        <label class="question-card">
+          <span>{{ loop.index }}. {{ question }}</span>
+          <textarea name="response{{ loop.index0 }}" rows="3" placeholder="Write your answer here..." required></textarea>
+        </label>
+      {% endfor %}
+      <button type="submit" class="button primary">Generate refined analysis</button>
+    </form>
+  </section>
+{% endblock %}
