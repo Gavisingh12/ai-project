@@ -38,6 +38,7 @@ def main() -> int:
     mail_password = os.environ.get("MAIL_PASSWORD", "").strip()
     mail_default_sender = os.environ.get("MAIL_DEFAULT_SENDER", "").strip()
     secret_key = os.environ.get("FLASK_SECRET_KEY", "")
+    require_email_verification = env_bool("REQUIRE_EMAIL_VERIFICATION", False)
 
     print_section("CareCompass AI Deployment Preflight")
     print(f"Mode: {'production' if production else 'development'}")
@@ -54,12 +55,15 @@ def main() -> int:
             issues.append("REMEMBER_COOKIE_SECURE must be true in production.")
         if env_bool("ENABLE_DEV_ROUTES", False):
             issues.append("ENABLE_DEV_ROUTES must stay false in production.")
-        if not has_real_mail_value(mail_username):
-            issues.append("MAIL_USERNAME is required for live email verification.")
-        if not has_real_mail_value(mail_password):
-            issues.append("MAIL_PASSWORD is required for live email verification.")
-        if not has_real_mail_value(mail_default_sender):
-            issues.append("MAIL_DEFAULT_SENDER is required for live email verification.")
+        if require_email_verification:
+            if not has_real_mail_value(mail_username):
+                issues.append("MAIL_USERNAME is required for live email verification.")
+            if not has_real_mail_value(mail_password):
+                issues.append("MAIL_PASSWORD is required for live email verification.")
+            if not has_real_mail_value(mail_default_sender):
+                issues.append("MAIL_DEFAULT_SENDER is required for live email verification.")
+        else:
+            warnings.append("REQUIRE_EMAIL_VERIFICATION is off, so this deployment uses direct sign-up without inbox confirmation.")
     else:
         warnings.append("Production-only checks are skipped. Run with --production before going live.")
 
@@ -90,7 +94,10 @@ def main() -> int:
     }
     for key, validator in secret_validators.items():
         value = os.environ.get(key, "").strip()
-        status = "configured" if validator(value) else "missing or placeholder"
+        if key.startswith("MAIL_") and not require_email_verification:
+            status = "optional in demo mode"
+        else:
+            status = "configured" if validator(value) else "missing or placeholder"
         print(f"{key}: {status}")
 
     if issues:

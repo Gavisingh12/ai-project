@@ -41,7 +41,11 @@
         <button type="submit" class="button primary wide">Login</button>
       </form>
       <div class="auth-meta">
-        <a href="{{ url_for('auth.forgot_password') }}">Forgot password?</a>
+        {% if password_reset_available %}
+          <a href="{{ url_for('auth.forgot_password') }}">Forgot password?</a>
+        {% else %}
+          <span>Public demo mode uses direct sign-in without email reset.</span>
+        {% endif %}
         <span>New here? <a href="{{ url_for('auth.register') }}">Create account</a></span>
       </div>
     </div>

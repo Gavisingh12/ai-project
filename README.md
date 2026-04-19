@@ -6,14 +6,14 @@ CareCompass AI is a Flask-based medical support dashboard for symptom intake, gu
 
 ## Features
 
-- Account signup with email verification
+- Account signup with direct demo access
 - Login with email or name
 - AI-assisted consultation analysis with safe fallback mode
 - Follow-up question flow based on symptom matching
 - Consultation history with charting and PDF downloads
 - Appointment scheduling and cancellation
 - Hospital locator with map view
-- Password reset flow
+- Password reset flow when mail is configured
 - Health-check endpoint for deployment monitoring
 
 ## Stack
@@ -51,9 +51,10 @@ CareCompass AI is a Flask-based medical support dashboard for symptom intake, gu
 - `FLASK_SECRET_KEY`: required in all environments
 - `DATABASE_URL`: required in production and should point to PostgreSQL
 - `GEMINI_API_KEY`: optional, enables richer AI responses
-- `MAIL_USERNAME`: required in production for verification email
-- `MAIL_PASSWORD`: required in production for verification email
-- `MAIL_DEFAULT_SENDER`: required in production for verification email
+- `REQUIRE_EMAIL_VERIFICATION`: keep `false` for the free public demo
+- `MAIL_USERNAME`: optional unless email verification is enabled
+- `MAIL_PASSWORD`: optional unless email verification is enabled
+- `MAIL_DEFAULT_SENDER`: optional unless email verification is enabled
 - `SESSION_COOKIE_SECURE`: should be `true` in production
 - `REMEMBER_COOKIE_SECURE`: should be `true` in production
 - `ENABLE_DEV_ROUTES`: keep `false` in production
@@ -62,7 +63,7 @@ CareCompass AI is a Flask-based medical support dashboard for symptom intake, gu
 
 - The app now blocks unsafe production startup when required settings are missing.
 - SQLite is only for local development; production should use PostgreSQL.
-- Email verification is part of the signup flow, so mail settings must be configured in production.
+- Email verification is now optional and disabled by default for free public demo deployments.
 - The app includes a built-in PDF fallback, so PDF export still works without `wkhtmltopdf`.
 - Waitress is included for production startup.
 
@@ -80,21 +81,13 @@ This repository now includes a [render.yaml](render.yaml) Blueprint file.
 
 ### Plan note
 
-- The included Blueprint now uses a paid-safe setup: `starter` for the web service and `basic-256mb` for Postgres.
-- Render's official free-tier docs say Free web services spin down after 15 minutes of idle time, Free web services cannot send outbound SMTP traffic on ports such as `587`, and Free Postgres is not intended for production use.
-- Because this app uses email verification, free-tier web services are not a good fit for the current mail flow.
+- The included Blueprint now targets a free public demo: `free` for the web service and `free` for Postgres.
+- Email verification is disabled in the Blueprint, so signup works without SMTP.
+- Free Render web services spin down after 15 minutes of idle time and free Render Postgres databases expire 30 days after creation.
 
 ### Environment values you still need to set in Render
 
 - `GEMINI_API_KEY`
-- `MAIL_USERNAME`
-- `MAIL_PASSWORD`
-- `MAIL_DEFAULT_SENDER`
-
-### Local verification note
-
-- On `localhost`, if mail credentials are not configured yet, the app now shows a local verification button instead of blocking signup.
-- On the live deployment, real mail credentials are still required so account confirmation reaches the user's inbox.
 
 ### Deploy steps
 
@@ -102,8 +95,9 @@ This repository now includes a [render.yaml](render.yaml) Blueprint file.
 2. Log in to Render.
 3. Create a new Blueprint and connect this repository.
 4. Render will read `render.yaml` and create the web service plus database.
-5. Add the missing secret environment values in the Render dashboard.
+5. Add `GEMINI_API_KEY` in the Render dashboard if you want richer AI responses.
 6. Trigger a deploy and wait for the health check to pass.
+7. Use the live site as a public demo with direct sign-up and no inbox confirmation.
 
 ### Preflight check
 

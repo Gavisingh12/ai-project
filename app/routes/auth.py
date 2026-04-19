@@ -53,6 +53,10 @@ def allow_local_verification():
     )
 
 
+def requires_email_verification():
+    return bool(current_app.config.get("REQUIRE_EMAIL_VERIFICATION"))
+
+
 def reset_token_serializer():
     return URLSafeTimedSerializer(current_app.secret_key)
 
@@ -138,7 +142,11 @@ def login():
             flash("We could not find that account. Create a new account to continue.", "warning")
             return redirect(url_for("auth.register"))
 
-        if not user.email_verified:
+        if not user.email_verified and not requires_email_verification():
+            user.email_verified = True
+            db.session.commit()
+
+        if requires_email_verification() and not user.email_verified:
             email_sent, verification_link = send_verification_email(user.email)
             return render_template(
                 "auth/verify_email_sent.html",
@@ -188,20 +196,29 @@ def register():
             flash("An account with this email already exists. Please log in instead.", "warning")
             return redirect(url_for("auth.login"))
 
-        user = User(username=username, email=email, email_verified=False)
+        user = User(
+            username=username,
+            email=email,
+            email_verified=not requires_email_verification(),
+        )
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
 
-        email_sent, verification_link = send_verification_email(user.email)
-        return render_template(
-            "auth/verify_email_sent.html",
-            email=user.email,
-            name=user.display_name,
-            email_sent=email_sent,
-            verification_link=verification_link if (not email_sent and allow_local_verification()) else None,
-            resent=False
-        )
+        if requires_email_verification():
+            email_sent, verification_link = send_verification_email(user.email)
+            return render_template(
+                "auth/verify_email_sent.html",
+                email=user.email,
+                name=user.display_name,
+                email_sent=email_sent,
+                verification_link=verification_link if (not email_sent and allow_local_verification()) else None,
+                resent=False
+            )
+
+        login_user(user, remember=True)
+        flash("Account created successfully. Your dashboard is ready.", "success")
+        return redirect(url_for("main.dashboard"))
 
     return render_template("auth/register.html")
 
@@ -253,8 +270,10 @@ def forgot_password():
                 flash("Password reset instructions have been sent to your email.", "success")
             elif current_app.config["ENABLE_DEV_ROUTES"]:
                 flash(f"Mail is not configured. Use this local reset link: {reset_url}", "warning")
-            else:
+            elif current_app.config.get("REQUIRE_EMAIL_VERIFICATION"):
                 flash("Mail is not configured for this environment, so reset email could not be sent.", "warning")
+            else:
+                flash("Password reset is not enabled on this public demo right now.", "warning")
         else:
             flash("If this email exists, reset instructions have been prepared.", "info")
 

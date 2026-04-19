@@ -26,15 +26,12 @@
 ## Live Deployment Checklist
 
 1. Push the latest code to GitHub.
-2. Create a Gmail App Password if you want real account verification emails.
-3. In Render, deploy the repository as a Blueprint using `render.yaml`.
-4. Add these Render secrets:
-   - `MAIL_USERNAME`
-   - `MAIL_PASSWORD`
-   - `MAIL_DEFAULT_SENDER`
-   - `GEMINI_API_KEY`
+2. In Render, deploy the repository as a Blueprint using `render.yaml`.
+3. Keep `REQUIRE_EMAIL_VERIFICATION=False` for the free demo deployment.
+4. Add `GEMINI_API_KEY` only if you want richer AI responses.
 5. Wait for the Render health check on `/health` to pass.
-6. Create a fresh account on the live site and verify that the confirmation email arrives.
+6. Create a fresh account on the live site and sign in directly without inbox confirmation.
+7. Remember that Render free Postgres is temporary and the free web service can spin down when idle.
 
 ## Production Preflight
 
@@ -50,15 +47,8 @@ What it checks:
 - PostgreSQL `DATABASE_URL`
 - secure cookies enabled
 - dev routes disabled
-- required mail settings present
+- mail settings only when email verification is enabled
 - optional AI key warning
-
-## Gmail Setup
-
-- Turn on 2-Step Verification for your Google account.
-- Generate a Google App Password.
-- Use that App Password as `MAIL_PASSWORD`.
-- Keep `MAIL_USERNAME` and `MAIL_DEFAULT_SENDER` aligned to the same mailbox.
 
 ## Application Layout
 
@@ -82,7 +72,7 @@ What it checks:
 ## Production Notes
 
 - The app reads `DATABASE_URL` for production databases and defaults to local SQLite during development.
-- Localhost can use the local verification button when mail is not configured.
-- Live deployments must use real mail credentials for account verification.
+- Email verification is disabled by default so the free public demo can run without SMTP.
+- If you later turn `REQUIRE_EMAIL_VERIFICATION=True`, you must also configure the mail variables.
 - Waitress is included for production serving.
 - PDF export remains available even when `wkhtmltopdf` is missing because a built-in fallback is included.

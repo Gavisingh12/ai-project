@@ -96,10 +96,6 @@ def validate_runtime_settings(app):
 
     issues = []
     database_uri = app.config.get("SQLALCHEMY_DATABASE_URI", "")
-    invalid_mail = [
-        key for key in ("MAIL_USERNAME", "MAIL_PASSWORD", "MAIL_DEFAULT_SENDER")
-        if not has_real_mail_value(app.config.get(key))
-    ]
 
     if not database_uri or database_uri.startswith("sqlite"):
         issues.append("DATABASE_URL must point to PostgreSQL in production.")
@@ -109,6 +105,13 @@ def validate_runtime_settings(app):
         issues.append("REMEMBER_COOKIE_SECURE must be true in production.")
     if app.config.get("ENABLE_DEV_ROUTES"):
         issues.append("ENABLE_DEV_ROUTES must be false in production.")
+    if app.config.get("REQUIRE_EMAIL_VERIFICATION"):
+        invalid_mail = [
+            key for key in ("MAIL_USERNAME", "MAIL_PASSWORD", "MAIL_DEFAULT_SENDER")
+            if not has_real_mail_value(app.config.get(key))
+        ]
+    else:
+        invalid_mail = []
     if invalid_mail:
         issues.append(
             "Mail settings are required for email verification in production and cannot use placeholder values: "
@@ -226,6 +229,15 @@ def register_security(app):
 
 
 def register_template_helpers(app):
+    def password_reset_available():
+        return bool(
+            app.config.get("ENABLE_DEV_ROUTES")
+            or all(
+                has_real_mail_value(app.config.get(key))
+                for key in ("MAIL_USERNAME", "MAIL_PASSWORD", "MAIL_DEFAULT_SENDER")
+            )
+        )
+
     @app.context_processor
     def inject_helpers():
         return {
@@ -233,7 +245,9 @@ def register_template_helpers(app):
             "brand_tagline": app.config["BRAND_TAGLINE"],
             "csrf_token": get_csrf_token,
             "system_status": get_system_status(),
-            "is_authenticated": current_user.is_authenticated
+            "is_authenticated": current_user.is_authenticated,
+            "email_verification_required": app.config["REQUIRE_EMAIL_VERIFICATION"],
+            "password_reset_available": password_reset_available(),
         }
 
 

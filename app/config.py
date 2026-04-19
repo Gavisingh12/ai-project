@@ -81,6 +81,7 @@ class BaseConfig:
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(hours=12)
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024
     ENABLE_DEV_ROUTES = env_bool("ENABLE_DEV_ROUTES", False)
+    REQUIRE_EMAIL_VERIFICATION = env_bool("REQUIRE_EMAIL_VERIFICATION", False)
     AI_CACHE_LIMIT = int(os.environ.get("AI_CACHE_LIMIT", 128))
     AI_ENABLED = has_real_gemini_key(os.environ.get("GEMINI_API_KEY"))
     JSON_SORT_KEYS = False

@@ -29,7 +29,8 @@ def extract_csrf_token(html):
 
 def extract_verification_link(html):
     match = re.search(r'href="([^"]*verify-email/[^"]+)"', html)
-    assert match, "Verification link was not found in the page."
+    if not match:
+        return None
     verification_url = match.group(1)
     parsed = urlparse(verification_url)
     return parsed.path or verification_url
@@ -67,7 +68,10 @@ def register_user(client, username="user", email="user@example.com", password="P
         follow_redirects=True
     )
     verify_link = extract_verification_link(register_response.get_data(as_text=True))
-    verify_response = client.get(verify_link, follow_redirects=True)
+    if verify_link:
+        verify_response = client.get(verify_link, follow_redirects=True)
+    else:
+        verify_response = register_response
     client.get("/logout", follow_redirects=True)
     return register_response, verify_response
 
@@ -97,8 +101,8 @@ def test_health_endpoint_reports_ok(client):
 
 def test_register_and_login_flow(client):
     register_response, verify_response = register_user(client)
-    assert b"Check your email" in register_response.data
-    assert b"Your email has been verified successfully" in verify_response.data
+    assert b"Account created successfully" in register_response.data
+    assert b"Hello, User" in verify_response.data
 
     login_response = login_user(client)
     assert b"Hello, User" in login_response.data
@@ -257,7 +261,7 @@ def test_legacy_user_schema_is_repaired():
         assert "created_at" in columns
 
 
-def test_unverified_user_is_sent_back_to_verification_page(client):
+def test_unverified_user_is_activated_on_login_when_verification_is_disabled(client):
     response = client.get("/register")
     token = extract_csrf_token(response.get_data(as_text=True))
     client.post(
@@ -276,8 +280,9 @@ def test_unverified_user_is_sent_back_to_verification_page(client):
         user.email_verified = False
         main2.db.session.commit()
 
+    client.get("/logout", follow_redirects=True)
     login_response = login_user(client, identifier="pending@example.com")
-    assert b"Check your email" in login_response.data
+    assert b"Hello, Pending" in login_response.data
 
 
 def test_validate_runtime_settings_blocks_unsafe_production_config():
@@ -288,6 +293,7 @@ def test_validate_runtime_settings_blocks_unsafe_production_config():
         REMEMBER_COOKIE_SECURE=True,
         PREFERRED_URL_SCHEME="https",
         ENABLE_DEV_ROUTES=False,
+        REQUIRE_EMAIL_VERIFICATION=True,
         MAIL_USERNAME="",
         MAIL_PASSWORD="",
         MAIL_DEFAULT_SENDER="",
@@ -305,6 +311,7 @@ def test_validate_runtime_settings_blocks_placeholder_mail_values():
         REMEMBER_COOKIE_SECURE=True,
         PREFERRED_URL_SCHEME="https",
         ENABLE_DEV_ROUTES=False,
+        REQUIRE_EMAIL_VERIFICATION=True,
         MAIL_USERNAME="your.email@gmail.com",
         MAIL_PASSWORD="your-app-password",
         MAIL_DEFAULT_SENDER="your.email@gmail.com",
@@ -312,3 +319,20 @@ def test_validate_runtime_settings_blocks_placeholder_mail_values():
 
     with pytest.raises(RuntimeError, match="placeholder values"):
         app_module.validate_runtime_settings(app)
+
+
+def test_validate_runtime_settings_allows_demo_mode_without_mail():
+    app = Flask(__name__)
+    app.config.update(
+        SQLALCHEMY_DATABASE_URI="postgresql://user:pass@localhost:5432/carecompass",
+        SESSION_COOKIE_SECURE=True,
+        REMEMBER_COOKIE_SECURE=True,
+        PREFERRED_URL_SCHEME="https",
+        ENABLE_DEV_ROUTES=False,
+        REQUIRE_EMAIL_VERIFICATION=False,
+        MAIL_USERNAME="",
+        MAIL_PASSWORD="",
+        MAIL_DEFAULT_SENDER="",
+    )
+
+    app_module.validate_runtime_settings(app)
