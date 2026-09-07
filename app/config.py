@@ -42,6 +42,15 @@ def env_bool(name, default=False):
     return raw_value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def env_int(name, default):
+    """Read optional numeric environment values without failing on blank hosts."""
+    raw_value = (os.environ.get(name) or "").strip()
+    try:
+        return int(raw_value) if raw_value else default
+    except ValueError:
+        return default
+
+
 def normalize_database_url(database_url):
     if not database_url:
         return f"sqlite:///{INSTANCE_DIR / 'app.db'}"
@@ -92,11 +101,11 @@ class BaseConfig:
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024
     ENABLE_DEV_ROUTES = env_bool("ENABLE_DEV_ROUTES", False)
     REQUIRE_EMAIL_VERIFICATION = env_bool("REQUIRE_EMAIL_VERIFICATION", False)
-    AI_CACHE_LIMIT = int(os.environ.get("AI_CACHE_LIMIT", 128))
+    AI_CACHE_LIMIT = env_int("AI_CACHE_LIMIT", 128)
     AI_ENABLED = has_real_gemini_key(os.environ.get("GEMINI_API_KEY"))
     JSON_SORT_KEYS = False
     MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
-    MAIL_PORT = int(os.environ.get("MAIL_PORT", 587))
+    MAIL_PORT = env_int("MAIL_PORT", 587)
     MAIL_USE_TLS = env_bool("MAIL_USE_TLS", True)
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "")
