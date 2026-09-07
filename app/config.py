@@ -4,8 +4,14 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-INSTANCE_DIR = BASE_DIR / "instance"
-INSTANCE_DIR.mkdir(exist_ok=True)
+# Vercel Functions have a read-only deployment bundle. Only /tmp is writable
+# during a request, and production uses PostgreSQL rather than this local path.
+INSTANCE_DIR = (
+    Path("/tmp") / "carecompass-ai"
+    if os.environ.get("VERCEL")
+    else BASE_DIR / "instance"
+)
+INSTANCE_DIR.mkdir(parents=True, exist_ok=True)
 INVALID_GEMINI_KEY_VALUES = {
     "",
     "your-gemini-api-key-here",
