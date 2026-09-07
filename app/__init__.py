@@ -44,8 +44,10 @@ def create_app():
 
     with app.app_context():
         app.extensions["pdfkit_config"] = build_pdfkit_config()
-        db.create_all()
-        repair_legacy_schema(app)
+        # Vercel Functions must start quickly. Run schema setup explicitly
+        # before deployment instead of inspecting the database on every boot.
+        if not is_production_mode(app):
+            initialize_database(app)
 
     register_security(app)
     register_template_helpers(app)
@@ -209,6 +211,12 @@ def repair_legacy_schema(app):
 
     if schema_changed:
         app.logger.info("Legacy database schema was upgraded in place.")
+
+
+def initialize_database(app):
+    """Create and upgrade tables during local setup or an explicit release task."""
+    db.create_all()
+    repair_legacy_schema(app)
 
 
 def get_system_status():

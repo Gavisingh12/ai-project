@@ -152,6 +152,14 @@ Use a hosted PostgreSQL database. SQLite is not suitable for Vercel because Func
 4. Add `GEMINI_API_KEY` only if you want live Gemini analysis. Never put it in GitHub or frontend code.
 5. Deploy, then open `/health`. It must show `"status":"ok"` and a PostgreSQL database engine.
 
+### Initialize the database once
+
+Run this once locally after `.env.local` has a valid Neon `DATABASE_URL`. It creates the production tables before the first Vercel request, avoiding slow database setup inside a serverless function:
+
+```powershell
+python scripts/initialize_database.py
+```
+
 Email settings are not needed for the current public demo because signup is direct and email verification is disabled. If you later enable email verification, configure `MAIL_USERNAME`, `MAIL_PASSWORD`, and `MAIL_DEFAULT_SENDER` as Vercel environment variables.
 
 ## Custom Domain And Monitoring
