@@ -127,6 +127,33 @@ python scripts/deploy_preflight.py --production
 
 The script reports missing secrets, insecure cookie settings, SQLite usage, and optional AI warnings before you deploy.
 
+## Vercel Deployment
+
+This repository is also configured for Vercel. Vercel detects the Flask WSGI application exported by `wsgi.py` and runs it as a Python Function.
+
+### Before you deploy
+
+Use a hosted PostgreSQL database. SQLite is not suitable for Vercel because Function storage is temporary and user accounts, appointments, and consultation history would disappear between executions. A free Neon PostgreSQL project is a suitable option for this public demo.
+
+### Vercel setup
+
+1. Create a free PostgreSQL database at [Neon](https://neon.tech), then copy its pooled connection string.
+2. In Vercel, import `Gavisingh12/ai-project` from GitHub. Keep the root directory as `./` and let Vercel auto-detect Flask.
+3. In **Project Settings -> Environment Variables**, create these Production variables:
+   - `APP_ENV_PRODUCTION=true`
+   - `FLASK_ENV=production`
+   - `FLASK_SECRET_KEY=<a new random secret>`
+   - `DATABASE_URL=<your Neon PostgreSQL connection string>`
+   - `SESSION_COOKIE_SECURE=true`
+   - `REMEMBER_COOKIE_SECURE=true`
+   - `REQUIRE_EMAIL_VERIFICATION=false`
+   - `ENABLE_DEV_ROUTES=false`
+   - `SITE_URL=https://<your-project>.vercel.app`
+4. Add `GEMINI_API_KEY` only if you want live Gemini analysis. Never put it in GitHub or frontend code.
+5. Deploy, then open `/health`. It must show `"status":"ok"` and a PostgreSQL database engine.
+
+Email settings are not needed for the current public demo because signup is direct and email verification is disabled. If you later enable email verification, configure `MAIL_USERNAME`, `MAIL_PASSWORD`, and `MAIL_DEFAULT_SENDER` as Vercel environment variables.
+
 ## Custom Domain And Monitoring
 
 - Add your domain in Render, then set `SITE_URL` to that final `https://` address.
