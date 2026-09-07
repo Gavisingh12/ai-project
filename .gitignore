@@ -13,3 +13,8 @@ tests/*.db
 *.pyo
 *.pyd
 .DS_Store
+.neon
+.env.local
+node_modules/
+.agents/
+skills-lock.json
