@@ -1,6 +1,7 @@
 import datetime
 import logging
 import secrets
+from pathlib import Path
 
 from dotenv import load_dotenv
 from flask import Flask, abort, jsonify, render_template, request, session, url_for
@@ -14,7 +15,10 @@ from app.models import User
 from app.services.ai import analysis_points, analysis_summary, analysis_text, configure_ai
 
 
-load_dotenv()
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Neon CLI writes local database credentials to .env.local; keep it outside Git.
+load_dotenv(PROJECT_ROOT / ".env.local")
+load_dotenv(PROJECT_ROOT / ".env")
 
 logging.basicConfig(
     level=logging.INFO,
