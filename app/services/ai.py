@@ -4,12 +4,12 @@ import os
 import re
 from collections import OrderedDict
 
-import google.generativeai as genai
 from rapidfuzz import fuzz, process
 
 
 ai_cache = OrderedDict()
 logger = logging.getLogger(__name__)
+gemini_api_key = None
 
 ANALYSIS_DEFAULTS = {
     "presenting_complaint": "No presenting complaint was generated.",
@@ -90,6 +90,8 @@ DEFAULT_FOLLOWUP_QUESTIONS = [
 
 
 def configure_ai():
+    """Store configuration without importing the heavy Gemini SDK at app boot."""
+    global gemini_api_key
     api_key = os.environ.get("GEMINI_API_KEY")
     if api_key and api_key.strip().lower() not in {
         "",
@@ -99,7 +101,17 @@ def configure_ai():
         "changeme",
         "demo-key",
     }:
-        genai.configure(api_key=api_key)
+        gemini_api_key = api_key
+
+
+def get_gemini_client():
+    """Load Gemini only when a user requests an AI analysis."""
+    if not gemini_api_key:
+        return None
+    import google.generativeai as genai
+
+    genai.configure(api_key=gemini_api_key)
+    return genai
 
 
 def normalize_analysis_payload(payload):
@@ -307,6 +319,9 @@ def ask_gemini(prompt, app_config):
         return cache_ai_output(prompt, build_local_demo_analysis(prompt), app_config)
 
     try:
+        genai = get_gemini_client()
+        if not genai:
+            return cache_ai_output(prompt, build_local_demo_analysis(prompt), app_config)
         model = genai.GenerativeModel("gemini-2.5-flash")
         response = model.generate_content(prompt)
         output = response.text if response.text else build_local_demo_analysis(prompt)

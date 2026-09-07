@@ -1,8 +1,9 @@
-import folium
-from geopy.geocoders import Nominatim
-
-
 def build_hospital_map(city):
+    # Map packages are only needed on the hospital locator screen. Keeping
+    # them lazy prevents Vercel's landing page function from cold-starting them.
+    import folium
+    from geopy.geocoders import Nominatim
+
     geolocator = Nominatim(user_agent="carecompass_hospital_locator", timeout=5)
     location = geolocator.geocode(city)
     if not location:
